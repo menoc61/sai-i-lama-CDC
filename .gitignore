@@ -1,0 +1,9 @@
+# log files
+connect.log
+kafka.log
+zookeeper.log
+
+# all extract files
+*.tzg
+*.zip
+kafka_*

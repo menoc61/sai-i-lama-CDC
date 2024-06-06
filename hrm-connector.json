@@ -1,0 +1,20 @@
+{
+    "name": "hrm-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "database.hostname": "localhost",
+      "database.port": "5432",
+      "database.user": "debezium",
+      "database.password": "dbz",
+      "database.dbname": "hrm",
+      "database.server.name": "hrm",
+      "table.include.list": "public.user",
+      "plugin.name": "pgoutput",
+      "slot.name": "debezium_hrm",
+      "database.history.kafka.bootstrap.servers": "localhost:9092",
+      "database.history.kafka.topic": "schema-changes.hrm",
+      "transforms": "unwrap",
+      "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+      "transforms.unwrap.drop.tombstones": "false"
+    }
+  }

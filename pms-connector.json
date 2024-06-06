@@ -1,0 +1,20 @@
+{
+    "name": "pms-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "database.hostname": "localhost",
+      "database.port": "5432",
+      "database.user": "debezium",
+      "database.password": "dbz",
+      "database.dbname": "laravel",
+      "database.server.name": "laravel",
+      "table.include.list": "public.user",
+      "plugin.name": "pgoutput",
+      "slot.name": "debezium_pms",
+      "database.history.kafka.bootstrap.servers": "localhost:9092",
+      "database.history.kafka.topic": "schema-changes.pms",
+      "transforms": "unwrap",
+      "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+      "transforms.unwrap.drop.tombstones": "false"
+    }
+  }

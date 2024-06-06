@@ -1,0 +1,79 @@
+version: '2'
+services:
+  zookeeper:
+    image: debezium/zookeeper:1.9
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: debezium/kafka:1.9
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+
+  postgres_hrm:
+    image: debezium/example-postgres:1.9
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=momeni@61
+      - POSTGRES_DB=hrm
+
+  connect_hrm:
+    image: debezium/connect:1.9
+    ports:
+      - "8083:8083"
+    depends_on:
+      - kafka
+      - postgres_hrm
+    volumes:
+      - ./hrm-connector.json:/kafka/connect/hrm-connector.json
+      - ./register-hrm-connector.sh:/kafka/connect/register-hrm-connector.sh
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=hrm_connect_group
+      - CONFIG_STORAGE_TOPIC=hrm_connect_configs
+      - OFFSET_STORAGE_TOPIC=hrm_connect_offsets
+      - STATUS_STORAGE_TOPIC=hrm_connect_statuses
+      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+      - PLUGIN_PATH=/kafka/connect
+      - CONNECT_REST_ADVERTISED_HOST_NAME=connect_hrm
+      - CONNECT_LOG4J_ROOT_LOGLEVEL=INFO
+    entrypoint: ["/bin/sh", "-c", "/kafka/connect/register-hrm-connector.sh & /docker-entrypoint.sh"]
+
+  postgres_pms:
+    image: debezium/example-postgres:1.9
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=momeni@61
+      - POSTGRES_DB=pms
+
+  connect_pms:
+    image: debezium/connect:1.9
+    ports:
+      - "8084:8083"
+    depends_on:
+      - kafka
+      - postgres_pms
+    volumes:
+      - ./pms-connector.json:/kafka/connect/pms-connector.json
+      - ./register-pms-connector.sh:/kafka/connect/register-pms-connector.sh
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=pms_connect_group
+      - CONFIG_STORAGE_TOPIC=pms_connect_configs
+      - OFFSET_STORAGE_TOPIC=pms_connect_offsets
+      - STATUS_STORAGE_TOPIC=pms_connect_statuses
+      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+      - PLUGIN_PATH=/kafka/connect
+      - CONNECT_REST_ADVERTISED_HOST_NAME=connect_pms
+      - CONNECT_LOG4J_ROOT_LOGLEVEL=INFO
+    entrypoint: ["/bin/sh", "-c", "/kafka/connect/register-pms-connector.sh & /docker-entrypoint.sh"]
